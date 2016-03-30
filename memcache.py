@@ -139,10 +139,11 @@ class Client(threading.local):
            debuglog,\ set, set_multi, add, replace, get, get_multi,
            incr, decr, delete, delete_multi
     """
+    #youxixin888 change to with java-memcached-client flags compatible
     _FLAG_PICKLE = 1 << 0
-    _FLAG_INTEGER = 1 << 1
-    _FLAG_LONG = 1 << 2
-    _FLAG_COMPRESSED = 1 << 3
+    _FLAG_INTEGER = 1 << 2
+    _FLAG_LONG = 1 << 14
+    _FLAG_COMPRESSED = 1 << 1
 
     _SERVER_RETRIES = 10  # how many times to try finding a free server.
 
@@ -966,7 +967,8 @@ class Client(threading.local):
         # We should try to compress if min_compress_len > 0
         # and this string is longer than our min threshold.
         if min_compress_len and lv > min_compress_len:
-            comp_val = self.compressor(val)
+            #youxixin888 
+            comp_val = self.compressor(val,16+zlib.MAX_WBITS)
             # Only retain the result if the compression result is smaller
             # than the original.
             if len(comp_val) < lv:
@@ -1226,7 +1228,8 @@ class Client(threading.local):
             buf = buf[:-2]  # strip \r\n
 
         if flags & Client._FLAG_COMPRESSED:
-            buf = self.decompressor(buf)
+            #youxixin888 
+            buf = self.decompressor(buf,32+zlib.MAX_WBITS)
             flags &= ~Client._FLAG_COMPRESSED
 
         if flags == 0:
